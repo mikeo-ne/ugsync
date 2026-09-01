@@ -177,8 +177,14 @@ class EdgeSpool:
         ended_at: datetime,
         *,
         chunk_id: str | None = None,
+        now: datetime | None = None,
     ) -> QueuedChunk:
-        """Hash and enqueue a fully closed capture file exactly once."""
+        """Hash and enqueue a fully closed capture file exactly once.
+
+        ``now`` defaults to wall-clock time; tests (and a future capture
+        daemon driven by a single clock) inject it so that retry/claim logic
+        stays deterministic.
+        """
 
         if ended_at <= started_at:
             raise ValueError("chunk end time must be after its start time")
@@ -187,7 +193,7 @@ class EdgeSpool:
             raise FileNotFoundError(path)
         digest = self._sha256_file(path)
         byte_count = path.stat().st_size
-        now = datetime.now(UTC)
+        enqueued_at = self._as_utc(now or datetime.now(UTC))
         queued = QueuedChunk(
             chunk_id=chunk_id or str(uuid4()),
             source_id=source_id,
@@ -214,8 +220,8 @@ class EdgeSpool:
                     queued.started_at.isoformat(),
                     queued.ended_at.isoformat(),
                     queued.byte_count,
-                    now.isoformat(),
-                    now.isoformat(),
+                    enqueued_at.isoformat(),
+                    enqueued_at.isoformat(),
                 ),
             )
         return queued

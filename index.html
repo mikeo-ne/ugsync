@@ -3,71 +3,847 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>KLA-Sync — Uganda Music Monitoring</title>
-  <style>
-    :root {
-      color-scheme: dark;
-      font-family: Arial, sans-serif;
-      background: #0b1020;
-      color: #f8fafc;
-    }
+  <title>KLA-Sync — Evidence-first music monitoring & royalty attribution for Uganda</title>
+  <meta
+    name="description"
+    content="KLA-Sync turns monitored radio and venue playback in Uganda into auditable evidence: robust audio fingerprinting, reviewed match decisions, versioned rights splits, and transparent royalty statements. Shadow-monitoring pilot stage — no automatic payouts."
+  />
+  <meta name="theme-color" content="#080d1a" />
 
-    body {
-      margin: 0;
-      min-height: 100vh;
-      display: grid;
-      place-items: center;
-      background:
-        radial-gradient(circle at top right, #334155 0, transparent 35%),
-        #0b1020;
-    }
+  <!-- Open Graph -->
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="KLA-Sync — Evidence-first music monitoring for Uganda" />
+  <meta
+    property="og:description"
+    content="Offline-tolerant audio monitoring, robust fingerprinting, rights splits, and auditable royalty statements — built for Kampala, Jinja, Mbarara and Gulu."
+  />
+  <meta property="og:locale" content="en_UG" />
+  <meta name="twitter:card" content="summary_large_image" />
 
-    main {
-      max-width: 760px;
-      padding: 48px 28px;
-      text-align: center;
-    }
-
-    .tag {
-      color: #86efac;
-      font-size: 0.8rem;
-      font-weight: 700;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-    }
-
-    h1 {
-      margin: 16px 0;
-      font-size: clamp(2.5rem, 9vw, 5rem);
-    }
-
-    p {
-      color: #cbd5e1;
-      font-size: 1.15rem;
-      line-height: 1.7;
-    }
-
-    a {
-      display: inline-block;
-      margin-top: 22px;
-      padding: 13px 20px;
-      border-radius: 999px;
-      background: #22c55e;
-      color: #052e16;
-      font-weight: 700;
-      text-decoration: none;
-    }
-  </style>
+  <link rel="stylesheet" href="assets/css/styles.css" />
+  <link
+    rel="icon"
+    href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23080d1a'/%3E%3Cpath d='M5 16h3M10 11v10M14 7v18M18 12v8M22 9v14M27 16h0' stroke='%23f6c453' stroke-width='2.4' stroke-linecap='round'/%3E%3C/svg%3E"
+  />
 </head>
 <body>
-  <main>
-    <div class="tag">Uganda music intelligence</div>
-    <h1>KLA-Sync</h1>
-    <p>
-      An offline-tolerant platform for music monitoring, robust audio
-      fingerprinting, royalty attribution, and transparent creator payouts.
-    </p>
-    <a href="https://github.com/mikeo-ne/ugsync">View the project</a>
+
+  <!-- ============================== NAV ============================== -->
+  <header class="nav" id="topnav">
+    <div class="nav-inner">
+      <a class="brand" href="#top" aria-label="KLA-Sync home">
+        <svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true">
+          <rect width="32" height="32" rx="8" fill="rgba(246,196,83,0.12)" stroke="rgba(246,196,83,0.45)" />
+          <path d="M5 16h2.6M10.2 11.5v9M14 7.5v17M17.8 12.5v7M21.6 9.5v13M26.4 16h.6"
+                stroke="#f6c453" stroke-width="2.3" stroke-linecap="round" fill="none" />
+        </svg>
+        KLA-Sync
+        <span class="brand-tag">pilot</span>
+      </a>
+
+      <nav class="nav-links" id="navLinks" aria-label="Primary">
+        <a href="#how-it-works">How it works</a>
+        <a href="#architecture">Architecture</a>
+        <a href="#stakeholders">Partners</a>
+        <a href="#roadmap">Pilot roadmap</a>
+        <a href="#trust">Trust &amp; safety</a>
+        <a href="#docs">Docs</a>
+        <a class="btn btn-primary btn-sm nav-cta"
+           href="https://github.com/mikeo-ne/ugsync"
+           target="_blank" rel="noopener">View on GitHub</a>
+      </nav>
+
+      <button class="nav-toggle" id="navToggle" aria-label="Toggle menu" aria-expanded="false" aria-controls="navLinks">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+          <path d="M4 7h16M4 12h16M4 17h16" />
+        </svg>
+      </button>
+    </div>
+  </header>
+
+  <main id="top">
+
+    <!-- ============================== HERO ============================== -->
+    <section class="hero">
+      <div class="wrap">
+        <div class="hero-grid">
+          <div>
+            <p class="eyebrow reveal">Uganda · Music usage intelligence</p>
+            <h1 class="reveal" data-delay="1">
+              Hear every play.<br />
+              <span class="accent">Prove every royalty.</span>
+            </h1>
+            <p class="hero-lede reveal" data-delay="2">
+              KLA-Sync is an offline-tolerant platform that monitors radio and
+              venue playback across <strong>Kampala, Jinja, Mbarara and Gulu</strong>,
+              fingerprints the music even through DJ pitch-shifts and noisy rooms,
+              and turns verified plays into transparent, auditable royalty
+              statements — with mobile-wallet settlement only after partner
+              approval.
+            </p>
+            <div class="hero-actions reveal" data-delay="3">
+              <a class="btn btn-primary" href="#partnership">
+                Partner on the pilot
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+              </a>
+              <a class="btn btn-ghost" href="#how-it-works">See how it works</a>
+            </div>
+            <p class="hero-note reveal" data-delay="4">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v6c0 4.4-3 7.5-7 9-4-1.5-7-4.6-7-9V6l7-3z"/><path d="M9.5 12l2 2 3.5-3.5"/></svg>
+              Shadow-monitoring pilot stage — no logins, payments, or live
+              integrations on this site.
+            </p>
+          </div>
+
+          <div class="hero-visual reveal" data-delay="2">
+            <div class="visual-panel">
+              <div class="visual-head">
+                <span class="dots"><i></i><i></i><i></i></span>
+                <span>edge-listener · kampala-radio-01</span>
+                <span class="live">listening</span>
+              </div>
+
+              <svg class="waveform" viewBox="0 0 420 190" role="img"
+                   aria-label="Audio waveform with fingerprint landmark pairs">
+                <!-- grid -->
+                <path class="grid-line" d="M0 47.5H420M0 95H420M0 142.5H420" />
+                <!-- waveform -->
+                <path class="wave"
+                  d="M0 95 L12 90 L22 99 L34 78 L46 112 L58 70 L70 118 L82 84 L94 106 L106 66 L118 124 L130 88 L142 102 L154 60 L166 130 L178 82 L190 108 L202 72 L214 116 L226 86 L238 104 L250 64 L262 126 L274 90 L286 100 L298 74 L310 114 L322 84 L334 106 L346 70 L358 120 L370 88 L382 102 L394 80 L406 110 L420 95" />
+                <!-- landmark links -->
+                <path class="landmark-line" d="M58 70 L118 124" />
+                <path class="landmark-line" d="M106 66 L178 82" />
+                <path class="landmark-line" d="M154 60 L250 64" />
+                <path class="landmark-line" d="M214 116 L310 114" />
+                <path class="landmark-line" d="M262 126 L358 120" />
+                <!-- anchors (yellow) & targets (red) -->
+                <circle class="anchor" cx="58" cy="70" r="4" />
+                <circle class="target" cx="118" cy="124" r="3.4" />
+                <circle class="anchor" cx="106" cy="66" r="4" />
+                <circle class="target" cx="178" cy="82" r="3.4" />
+                <circle class="anchor" cx="154" cy="60" r="4" />
+                <circle class="target" cx="250" cy="64" r="3.4" />
+                <circle class="anchor" cx="214" cy="116" r="4" />
+                <circle class="target" cx="310" cy="114" r="3.4" />
+                <circle class="anchor" cx="262" cy="126" r="4" />
+                <circle class="target" cx="358" cy="120" r="3.4" />
+              </svg>
+
+              <div class="visual-cities">
+                <span class="city-chip">Kampala</span>
+                <span class="city-chip">Jinja</span>
+                <span class="city-chip">Mbarara</span>
+                <span class="city-chip">Gulu</span>
+              </div>
+            </div>
+
+            <div class="float-card fc-1">
+              <div class="fc-label">Candidate match</div>
+              <div class="fc-row">
+                confidence 0.88 · scale 1.02
+                <span class="fc-status candidate">review</span>
+              </div>
+            </div>
+
+            <div class="float-card fc-2">
+              <div class="fc-label">Edge spool</div>
+              <div class="fc-row">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg>
+                30s chunks · queued offline
+              </div>
+            </div>
+
+            <div class="float-card fc-3">
+              <div class="fc-label">Split sheet · 10,000 bp</div>
+              <div class="fc-row">
+                producer 50 · artist 30 · label 20
+                <span class="fc-status held">held</span>
+              </div>
+              <div class="fc-split-bars"><i></i><i></i><i></i></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="stats reveal">
+          <div class="stat"><b>30<span class="unit">s</span></b><span>edge capture chunks, stored &amp; forwarded</span></div>
+          <div class="stat"><b>±10<span class="unit">%</span></b><span>tempo/pitch-tolerant candidate search</span></div>
+          <div class="stat"><b>10,000<span class="unit">bp</span></b><span>splits validated to exactly 100%</span></div>
+          <div class="stat"><b>4–8</b><span>agreed radio streams in pilot phase 1</span></div>
+          <div class="stat"><b>0</b><span>automatic payouts — review gates every claim</span></div>
+          <div class="stat"><b>UGX</b><span>Decimal, largest-remainder whole-shilling math</span></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================== HOW IT WORKS ============================== -->
+    <section id="how-it-works">
+      <div class="wrap">
+        <div class="section-head reveal">
+          <p class="eyebrow">The workflow</p>
+          <h2>From a signal in a noisy club to a statement a creator can trust</h2>
+          <p>
+            Four stages turn raw monitored audio into attributable usage. Every
+            stage is designed for intermittent connectivity, DJ manipulation,
+            fragmented rights, and human review.
+          </p>
+        </div>
+
+        <div class="steps">
+          <article class="step-card reveal">
+            <div class="step-top">
+              <span class="step-num">01</span>
+              <span class="step-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10v4M7 6v12M11 3v18M15 7v10M19 10v4M22 12h-1"/><path d="M2 12h1"/></svg>
+              </span>
+            </div>
+            <h3>Audio monitoring</h3>
+            <p>
+              FFmpeg listeners on agreed FM and web streams, plus Raspberry Pi
+              micro-listeners in consented clubs, bars, hotels and taxi routes,
+              capture 30-second mono chunks.
+            </p>
+            <p class="step-guard">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v6c0 4.4-3 7.5-7 9-4-1.5-7-4.6-7-9V6l7-3z"/></svg>
+              Offline-first: an encrypted local spool survives outages and
+              retries on a unique chunk ID. Hashes and manifests travel first;
+              raw audio only under policy.
+            </p>
+          </article>
+
+          <article class="step-card reveal" data-delay="1">
+            <div class="step-top">
+              <span class="step-num">02</span>
+              <span class="step-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/><path d="M8 11h6M11 8v6"/></svg>
+              </span>
+            </div>
+            <h3>Robust fingerprinting</h3>
+            <p>
+              Spectral peaks become landmark pairs hashed on relative
+              log-frequency ratios — so pitch shifts and beat-matched mixes
+              still match. A tempo-aware vote across 0.90–1.10 timing scales
+              proposes candidate windows.
+            </p>
+            <p class="step-guard">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v6c0 4.4-3 7.5-7 9-4-1.5-7-4.6-7-9V6l7-3z"/></svg>
+              Every candidate records schema ID, matcher version, votes and
+              confidence — explainable evidence, never a black-box verdict.
+            </p>
+          </article>
+
+          <article class="step-card reveal" data-delay="2">
+            <div class="step-top">
+              <span class="step-num">03</span>
+              <span class="step-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h1"/><path d="M16 3h1a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-1"/><path d="M12 8v8M9.5 10.5l2.5-2.5 2.5 2.5M9.5 13.5l2.5 2.5 2.5-2.5"/></svg>
+              </span>
+            </div>
+            <h3>Rights splits</h3>
+            <p>
+              Recordings (ISRC) and compositions (ISWC) carry versioned split
+              sheets for master, composition, performance and mechanical rights —
+              producers, artists, labels, writers and publishers included.
+            </p>
+            <p class="step-guard">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v6c0 4.4-3 7.5-7 9-4-1.5-7-4.6-7-9V6l7-3z"/></svg>
+              Draft → active → superseded. A database guard rejects any active
+              sheet that doesn’t total exactly 10,000 basis points.
+            </p>
+          </article>
+
+          <article class="step-card reveal" data-delay="3">
+            <div class="step-top">
+              <span class="step-num">04</span>
+              <span class="step-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18"/><path d="M7 15h4"/></svg>
+              </span>
+            </div>
+            <h3>Statements &amp; payout</h3>
+            <p>
+              Verified plays meet the tariff and source weight in force at the
+              time of use. Deterministic Decimal arithmetic allocates whole UGX
+              by largest remainder, so recipient totals always equal gross.
+            </p>
+            <p class="step-guard">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v6c0 4.4-3 7.5-7 9-4-1.5-7-4.6-7-9V6l7-3z"/></svg>
+              Payouts are idempotent outbox instructions to approved wallet
+              rails — enabled only after CMO governance and telecom sandbox
+              certification. Disputed amounts are held, not redistributed.
+            </p>
+          </article>
+        </div>
+
+        <div class="evidence-banner reveal">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4M12 17h.01"/><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg>
+          <p>
+            <strong>A fingerprint match is evidence, not a payable event.</strong>
+            Human or approved-policy review, dispute status, an active split,
+            a governed tariff version and finance approval all stand between a
+            candidate detection and any money movement.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================== ARCHITECTURE ============================== -->
+    <section id="architecture">
+      <div class="wrap">
+        <div class="section-head reveal">
+          <p class="eyebrow">Architecture overview</p>
+          <h2>Offline at the edge, evidence at the core</h2>
+          <p>
+            One signed, idempotent path from a field listener to a settled
+            statement — with matching, rights and finance as separately governed
+            services and partner rails switched on only by signed agreement.
+          </p>
+        </div>
+
+        <div class="arch-flow reveal">
+          <div class="arch-stage">
+            <div class="arch-stage-head">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a7 7 0 0 0-7 7c0 5 7 13 7 13s7-8 7-13a7 7 0 0 0-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
+              Field sources
+            </div>
+            <div class="arch-node"><strong>FM / web streams</strong><br />agreed stations</div>
+            <div class="arch-node"><strong>Pi listeners</strong><br />venues &amp; taxis</div>
+          </div>
+
+          <div class="arch-stage">
+            <div class="arch-stage-head">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/><path d="M7 9l2 2-2 2M12 13h4"/></svg>
+              Edge ingest
+            </div>
+            <div class="arch-node"><strong>FFmpeg capture</strong><br />30s mono chunks</div>
+            <div class="arch-node"><strong>Signed manifests</strong><br />device key + spool</div>
+          </div>
+
+          <div class="arch-stage">
+            <div class="arch-stage-head">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M4 12h16M4 18h10"/><circle cx="19" cy="18" r="2.4"/></svg>
+              Platform core
+            </div>
+            <div class="arch-node"><strong>Ingestion API</strong><br />device auth, queue</div>
+            <div class="arch-node"><strong>Matcher workers</strong><br />Redis hot index</div>
+            <div class="arch-node"><strong>PostgreSQL</strong><br />evidence &amp; rights</div>
+          </div>
+
+          <div class="arch-stage">
+            <div class="arch-stage-head">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 21l-4.3-4.3"/><circle cx="11" cy="11" r="7"/><path d="M8 11h6"/></svg>
+              Attribution
+            </div>
+            <div class="arch-node"><strong>Mix segmenter</strong><br />crossfade-aware events</div>
+            <div class="arch-node"><strong>Catalog service</strong><br />ISRC / ISWC / splits</div>
+          </div>
+
+          <div class="arch-stage gate">
+            <div class="arch-stage-head">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="9"/></svg>
+              Review &amp; governance
+            </div>
+            <div class="arch-node"><strong>Reviewer dashboard</strong><br />disputes &amp; holds</div>
+            <div class="arch-node"><strong>Tariff &amp; weights</strong><br />versioned, effective-dated</div>
+            <div class="arch-node"><strong>Audit events</strong><br />append-only</div>
+          </div>
+
+          <div class="arch-stage settle">
+            <div class="arch-stage-head">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18"/><path d="M7 15h4M15 15h2"/></svg>
+              Settlement
+            </div>
+            <div class="arch-node"><strong>Royalty worker</strong><br />formula snapshots</div>
+            <div class="arch-node"><strong>Payout outbox</strong><br />idempotent batches</div>
+          </div>
+        </div>
+
+        <div class="arch-partners reveal">
+          <div class="partner-rail">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-6.2-8.6"/><path d="M21 4v5h-5"/></svg>
+            <div>
+              <b>URSB / registry reconciliation</b>
+              <span>Structured, provenance-tracked metadata checks — only under an approved data-sharing agreement.</span>
+            </div>
+          </div>
+          <div class="partner-rail">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            <div>
+              <b>CMO / UPRS reporting</b>
+              <span>Reconciliation exports and tariff governance with the mandated collective-management body.</span>
+            </div>
+          </div>
+          <div class="partner-rail">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/><path d="M6 15h4"/></svg>
+            <div>
+              <b>MTN MoMo / Airtel Money</b>
+              <span>Provider-neutral contracts and sandbox gateway — no live endpoints until certified.</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="principles reveal">
+          <div class="principle">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4 4L19 7"/></svg>
+            <div><b>Immutable financial evidence</b><span>Every payout snapshots tariff, weight, duration ratio, split lines and rounding. Catalog edits never rewrite history.</span></div>
+          </div>
+          <div class="principle">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4 4L19 7"/></svg>
+            <div><b>Separation of duties</b><span>Catalog editors, reviewers, finance approvers and payout dispatchers hold distinct roles with distinct audit trails.</span></div>
+          </div>
+          <div class="principle">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4 4L19 7"/></svg>
+            <div><b>No fabricated integrations</b><span>Registry, CMO and telecom adapters are contracts until agreements and sandbox certification are in place.</span></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================== STAKEHOLDERS ============================== -->
+    <section id="stakeholders">
+      <div class="wrap">
+        <div class="section-head reveal">
+          <p class="eyebrow">Who it serves</p>
+          <h2>One neutral evidence layer for the whole ecosystem</h2>
+          <p>
+            KLA-Sync doesn’t pick winners among rights holders. It gives every
+            party in the Ugandan music value chain verifiable information — and a
+            defined, consensual role in producing it.
+          </p>
+        </div>
+
+        <div class="stake-grid">
+          <article class="stake-card reveal">
+            <div class="stake-head">
+              <span class="stake-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 18v-7l9-6 9 6v7"/><path d="M9 18v-6h6v6"/><path d="M3 21h18"/></svg>
+              </span>
+              <div>
+                <h3>Radio &amp; broadcasters</h3>
+                <span>First pilot source</span>
+              </div>
+            </div>
+            <span class="badge amber"><span class="dot"></span>Phase 1 · shadow reports</span>
+            <div class="stake-cols">
+              <div class="stake-col gets">
+                <h4>They get</h4>
+                <ul>
+                  <li>Lower-friction, evidence-based usage logs</li>
+                  <li>Proof of local-repertoire support</li>
+                  <li>Operational dashboard &amp; log reconciliation</li>
+                </ul>
+              </div>
+              <div class="stake-col gives">
+                <h4>They provide</h4>
+                <ul>
+                  <li>Agreed stream access</li>
+                  <li>Schedule / playlist reconciliation</li>
+                  <li>Pilot feedback on false matches</li>
+                </ul>
+              </div>
+            </div>
+          </article>
+
+          <article class="stake-card reveal" data-delay="1">
+            <div class="stake-head">
+              <span class="stake-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a9 9 0 0 0-9 9v7a2 2 0 0 0 2 2h3v-8H5v-1a7 7 0 0 1 14 0v1h-3v8h3a2 2 0 0 0 2-2v-7a9 9 0 0 0-9-9z"/></svg>
+              </span>
+              <div>
+                <h3>Venues &amp; mobility</h3>
+                <span>Clubs, bars, hotels, taxis</span>
+              </div>
+            </div>
+            <span class="badge sky"><span class="dot"></span>Phase 2 · consented nodes</span>
+            <div class="stake-cols">
+              <div class="stake-col gets">
+                <h4>They get</h4>
+                <ul>
+                  <li>Low-bandwidth offline listener option</li>
+                  <li>Aggregate compliance evidence</li>
+                  <li>No manual DJ track-tagging</li>
+                </ul>
+              </div>
+              <div class="stake-col gives">
+                <h4>They provide</h4>
+                <ul>
+                  <li>Operator consent &amp; safe node placement</li>
+                  <li>Visible listener notice</li>
+                  <li>Venue hours &amp; local support contact</li>
+                </ul>
+              </div>
+            </div>
+          </article>
+
+          <article class="stake-card reveal" data-delay="2">
+            <div class="stake-head">
+              <span class="stake-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+              </span>
+              <div>
+                <h3>Creators, labels &amp; publishers</h3>
+                <span>Artists, producers, writers</span>
+              </div>
+            </div>
+            <span class="badge green"><span class="dot"></span>Catalog flywheel · subsidized onboarding</span>
+            <div class="stake-cols">
+              <div class="stake-col gets">
+                <h4>They get</h4>
+                <ul>
+                  <li>Plain-language play evidence &amp; statements</li>
+                  <li>Split onboarding and dispute path</li>
+                  <li>Held amounts — never silent redistribution</li>
+                </ul>
+              </div>
+              <div class="stake-col gives">
+                <h4>They provide</h4>
+                <ul>
+                  <li>Rights evidence &amp; accurate ISRC/ISWC metadata</li>
+                  <li>Consented catalog enrollment</li>
+                  <li>Correction &amp; alias feedback</li>
+                </ul>
+              </div>
+            </div>
+          </article>
+
+          <article class="stake-card reveal">
+            <div class="stake-head">
+              <span class="stake-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><path d="M5 21V7l7-4 7 4v14"/><path d="M9 21v-6h6v6"/><path d="M9 10h.01M15 10h.01"/></svg>
+              </span>
+              <div>
+                <h3>CMO &amp; registry</h3>
+                <span>UPRS · URSB counterparts</span>
+              </div>
+            </div>
+            <span class="badge red"><span class="dot"></span>Agreement-gated</span>
+            <div class="stake-cols">
+              <div class="stake-col gets">
+                <h4>They get</h4>
+                <ul>
+                  <li>Better usage evidence &amp; reconciliation exports</li>
+                  <li>Auditable allocation inputs</li>
+                  <li>Regional &amp; local-content reporting</li>
+                </ul>
+              </div>
+              <div class="stake-col gives">
+                <h4>They govern</h4>
+                <ul>
+                  <li>Mandate, tariff &amp; dispute policy</li>
+                  <li>Data-sharing rules &amp; retention</li>
+                  <li>Pilot review &amp; go/no-go gates</li>
+                </ul>
+              </div>
+            </div>
+          </article>
+
+          <article class="stake-card reveal" data-delay="1">
+            <div class="stake-head">
+              <span class="stake-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="7" y="2" width="10" height="20" rx="2"/><path d="M11 18h2"/></svg>
+              </span>
+              <div>
+                <h3>Telecom &amp; wallet rails</h3>
+                <span>MTN MoMo · Airtel Money</span>
+              </div>
+            </div>
+            <span class="badge red"><span class="dot"></span>Sandbox only after approval</span>
+            <div class="stake-cols">
+              <div class="stake-col gets">
+                <h4>They get</h4>
+                <ul>
+                  <li>A controlled, auditable disbursement use case</li>
+                  <li>Provider-specific reconciliation</li>
+                  <li>Idempotent, duplicate-safe instructions</li>
+                </ul>
+              </div>
+              <div class="stake-col gives">
+                <h4>Required first</h4>
+                <ul>
+                  <li>Commercial &amp; technical agreement</li>
+                  <li>Sandbox credentials &amp; certification</li>
+                  <li>Callback, SLA &amp; fraud controls</li>
+                </ul>
+              </div>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================== ROADMAP ============================== -->
+    <section id="roadmap">
+      <div class="wrap">
+        <div class="section-head reveal">
+          <p class="eyebrow">Pilot roadmap</p>
+          <h2>Gated delivery: evidence first, money last</h2>
+          <p>
+            Each phase has explicit exit criteria. No phase advances on claims —
+            only on measured accuracy, signed governance, and certified controls.
+          </p>
+        </div>
+
+        <div class="timeline">
+          <div class="phase now reveal">
+            <div class="phase-dot">0</div>
+            <div class="phase-body">
+              <h3>Controlled data foundation
+                <span class="badge amber"><span class="dot"></span>in progress</span>
+              </h3>
+              <p>
+                Onboarding templates, an approved test catalog, migration review,
+                device identity, and a labelled audio corpus across genres,
+                languages, pitch/tempo ranges and noise levels.
+              </p>
+            </div>
+            <div class="phase-gate"><b>Gate:</b> reference corpus + schema freeze</div>
+          </div>
+
+          <div class="phase reveal">
+            <div class="phase-dot">1</div>
+            <div class="phase-body">
+              <h3>Radio shadow-monitoring pilot</h3>
+              <p>
+                4–8 agreed streams across Kampala, Jinja, Mbarara and Gulu.
+                Output is a non-financial weekly reconciliation report: candidate
+                plays, station-log agreement, unmatched local repertoire, and
+                reviewed false positives/negatives.
+              </p>
+            </div>
+            <div class="phase-gate"><b>Gate:</b> source-specific precision/recall accepted</div>
+          </div>
+
+          <div class="phase reveal">
+            <div class="phase-dot">2</div>
+            <div class="phase-body">
+              <h3>Venue &amp; mobility pilot</h3>
+              <p>
+                10–20 consented clubs, bars and — where operator consent and
+                safety review permit — taxi environments. Offline nodes measure
+                bandwidth, uptime, noise, DJ manipulation and consent workflows.
+              </p>
+            </div>
+            <div class="phase-gate"><b>Gate:</b> backlog &amp; uptime SLAs met; no covert capture</div>
+          </div>
+
+          <div class="phase locked reveal">
+            <div class="phase-dot">3</div>
+            <div class="phase-body">
+              <h3>Settlement sandbox
+                <span class="badge red"><span class="dot"></span>gated</span>
+              </h3>
+              <p>
+                Frozen tariffs and splits, dry-run statements that move no funds,
+                recipient reconciliation, dispute and duplicate-payment
+                simulations, and an approved telecom sandbox certification.
+              </p>
+            </div>
+            <div class="phase-gate"><b>Gate:</b> written go/no-go from governance parties</div>
+          </div>
+
+          <div class="phase locked reveal">
+            <div class="phase-dot">4</div>
+            <div class="phase-body">
+              <h3>Controlled production
+                <span class="badge neutral"><span class="dot"></span>not started</span>
+              </h3>
+              <p>
+                Phased station and venue onboarding with payout caps, dual
+                approval, incident runbooks, provider callback reconciliation and
+                independent periodic audit.
+              </p>
+            </div>
+            <div class="phase-gate"><b>Gate:</b> independent reconciliation + steering sign-off</div>
+          </div>
+        </div>
+
+        <div class="roadmap-note reveal">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+          <p>
+            <strong>90-day launch plan:</strong> stakeholder mapping and MoU
+            drafts in days 1–30; catalog clinic, stream capture and matcher
+            baseline in days 31–45; shadow monitoring with weekly reconciliation
+            in days 46–75; pilot evaluation and a jointly signed dry-run decision
+            by day 90.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================== TRUST ============================== -->
+    <section id="trust" class="tight">
+      <div class="wrap">
+        <div class="section-head reveal">
+          <p class="eyebrow">Trust &amp; safety</p>
+          <h2>Privacy and financial controls are design constraints, not add-ons</h2>
+        </div>
+
+        <div class="trust-grid">
+          <div class="trust-item reveal">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v6c0 4.4-3 7.5-7 9-4-1.5-7-4.6-7-9V6l7-3z"/><path d="M9.5 12l2 2 3.5-3.5"/></svg>
+            <div><b>Audio minimization</b><p>Fingerprints and signed manifests are the default retention unit. Encrypted clips need a defined purpose, access log and deletion schedule.</p></div>
+          </div>
+          <div class="trust-item reveal" data-delay="1">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="10" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            <div><b>Wallet privacy</b><p>Only ciphertext, an HMAC for duplicate detection and a key reference are stored. Full wallet numbers and tokens never touch code or logs.</p></div>
+          </div>
+          <div class="trust-item reveal" data-delay="2">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="9"/></svg>
+            <div><b>Financial safety gates</b><p>Candidates, disputes, inactive splits, unverified accounts and unapproved tariffs cannot enter a payout batch.</p></div>
+          </div>
+          <div class="trust-item reveal">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M8 13h8M8 17h5"/></svg>
+            <div><b>Audit everything</b><p>Append-only events for catalog edits, split activation, reviews, tariff changes, calculation runs and provider callbacks.</p></div>
+          </div>
+          <div class="trust-item reveal" data-delay="1">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4M12 17h.01"/><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg>
+            <div><b>Visible venue notices</b><p>Pilot locations carry a listener notice and contact path. No covert microphone deployment — ever.</p></div>
+          </div>
+          <div class="trust-item reveal" data-delay="2">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>
+            <div><b>Bias monitoring</b><p>Recall is measured for regional languages, older recordings, female creators and emerging artists — not just studio masters.</p></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================== DOCS ============================== -->
+    <section id="docs" class="tight">
+      <div class="wrap">
+        <div class="section-head reveal">
+          <p class="eyebrow">Technical documentation</p>
+          <h2>Open blueprint, auditable math</h2>
+          <p>
+            The reference implementation and its design documents are public.
+            Review the fingerprint contract, the financial invariants, and the
+            bounded worker prompts before trusting any number.
+          </p>
+        </div>
+
+        <div class="docs-grid">
+          <a class="doc-card reveal"
+             href="https://github.com/mikeo-ne/ugsync/blob/main/docs/architecture.md"
+             target="_blank" rel="noopener">
+            <svg class="doc-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+            <h3>Architecture &amp; data flows</h3>
+            <p>System context, capture-to-attribution sequence, matching-store contract, deployment topology and pilot acceptance metrics.</p>
+            <span class="doc-link">Read architecture.md
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M9 7h8v8"/></svg>
+            </span>
+          </a>
+
+          <a class="doc-card reveal" data-delay="1"
+             href="https://github.com/mikeo-ne/ugsync/blob/main/docs/database-model.md"
+             target="_blank" rel="noopener">
+            <svg class="doc-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v14c0 1.7 3.6 3 8 3s8-1.3 8-3V5"/><path d="M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3"/></svg>
+            <h3>Catalog, rights &amp; settlement model</h3>
+            <p>ISRC/ISWC entities, split-sheet lifecycle, detection evidence states, immutable royalty snapshots and RLS access baseline.</p>
+            <span class="doc-link">Read database-model.md
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M9 7h8v8"/></svg>
+            </span>
+          </a>
+
+          <a class="doc-card reveal" data-delay="2"
+             href="https://github.com/mikeo-ne/ugsync/blob/main/docs/autonomous-service-prompts.md"
+             target="_blank" rel="noopener">
+            <svg class="doc-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M9 9h6M9 13h6M9 17h3"/></svg>
+            <h3>Bounded worker contracts</h3>
+            <p>Least-privilege operating prompts for preprocessing, matching, catalog, royalty and payout agents — with human escalation routes.</p>
+            <span class="doc-link">Read autonomous-service-prompts.md
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M9 7h8v8"/></svg>
+            </span>
+          </a>
+
+          <a class="doc-card reveal" data-delay="3"
+             href="https://github.com/mikeo-ne/ugsync/blob/main/docs/uganda-go-to-market-and-partnership.md"
+             target="_blank" rel="noopener">
+            <svg class="doc-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 6-9 12-9 12s-9-6-9-12a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            <h3>Uganda go-to-market &amp; partnership</h3>
+            <p>Stakeholder value exchange, CMO/URSB engagement sequence, commercial models, telecom readiness checklist and pilot scorecard.</p>
+            <span class="doc-link">Read partnership concept
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M9 7h8v8"/></svg>
+            </span>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================== CTA ============================== -->
+    <section id="partnership">
+      <div class="wrap">
+        <div class="cta-band reveal">
+          <div class="cta-grid">
+            <div>
+              <p class="eyebrow">Partner with us</p>
+              <h2>Co-design the first non-financial radio shadow report.</h2>
+              <p class="lede">
+                KLA-Sync advances by agreement, not announcement. We’re looking
+                for stations, rightsholders, collective-management stakeholders
+                and venues to shape a 90-day pilot with published methodology and
+                no money movement.
+              </p>
+              <div class="cta-actions">
+                <a class="btn btn-primary"
+                   href="https://github.com/mikeo-ne/ugsync"
+                   target="_blank" rel="noopener">
+                  <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5C5.7.5.5 5.7.5 12c0 5.1 3.3 9.4 7.9 10.9.6.1.8-.2.8-.5v-2c-3.2.7-3.9-1.4-3.9-1.4-.5-1.3-1.3-1.7-1.3-1.7-1.1-.7.1-.7.1-.7 1.2.1 1.8 1.2 1.8 1.2 1 1.8 2.7 1.3 3.4 1 .1-.8.4-1.3.7-1.6-2.6-.3-5.3-1.3-5.3-5.7 0-1.3.5-2.3 1.2-3.1-.1-.3-.5-1.5.1-3.1 0 0 1-.3 3.3 1.2a11.5 11.5 0 0 1 6 0C17.3 4.7 18.3 5 18.3 5c.6 1.6.2 2.8.1 3.1.8.8 1.2 1.8 1.2 3.1 0 4.4-2.7 5.4-5.3 5.7.4.4.8 1.1.8 2.2v3.3c0 .3.2.6.8.5 4.6-1.5 7.9-5.8 7.9-10.9C23.5 5.7 18.3.5 12 .5z"/></svg>
+                  Start on GitHub
+                </a>
+                <a class="btn btn-ghost"
+                   href="https://github.com/mikeo-ne/ugsync/blob/main/docs/architecture.md"
+                   target="_blank" rel="noopener">Read the technical blueprint</a>
+              </div>
+            </div>
+
+            <ol class="decisions">
+              <li><span><strong>Which institution(s)</strong> co-design the initial radio shadow pilot?</span></li>
+              <li><span><strong>Which repertoire and right categories</strong> are in scope for the first non-financial report?</span></li>
+              <li><span><strong>What source list, consent language and retention policy</strong> are acceptable for a 90-day pilot?</span></li>
+              <li><span><strong>Who approves tariffs, source weights</strong> and release of a dry-run statement?</span></li>
+              <li><span><strong>Which independent technical and creator representatives</strong> join the steering group?</span></li>
+            </ol>
+          </div>
+        </div>
+      </div>
+    </section>
   </main>
+
+  <!-- ============================== FOOTER ============================== -->
+  <footer>
+    <div class="wrap">
+      <div class="foot-grid">
+        <div class="foot-about">
+          <a class="brand" href="#top">
+            <svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true">
+              <rect width="32" height="32" rx="8" fill="rgba(246,196,83,0.12)" stroke="rgba(246,196,83,0.45)" />
+              <path d="M5 16h2.6M10.2 11.5v9M14 7.5v17M17.8 12.5v7M21.6 9.5v13M26.4 16h.6"
+                    stroke="#f6c453" stroke-width="2.3" stroke-linecap="round" fill="none" />
+            </svg>
+            KLA-Sync
+          </a>
+          <p>
+            Evidence-first music monitoring, fingerprinting and royalty
+            attribution for Uganda. This is a public information site for a
+            shadow-monitoring pilot concept: it contains no logins, no payment
+            forms, no API keys, and no representation that any registry, CMO or
+            telecom integration is approved or live. Partner names describe
+            intended counterparties, not endorsements.
+          </p>
+        </div>
+        <nav class="foot-links" aria-label="Footer">
+          <a href="#how-it-works">How it works</a>
+          <a href="#architecture">Architecture</a>
+          <a href="#stakeholders">Partners</a>
+          <a href="#roadmap">Roadmap</a>
+          <a href="#trust">Trust &amp; safety</a>
+          <a href="https://github.com/mikeo-ne/ugsync" target="_blank" rel="noopener">GitHub repository</a>
+        </nav>
+      </div>
+      <div class="foot-bar">
+        <span>© 2026 KLA-Sync · foundation v0.1 · Kampala, Uganda</span>
+        <span>static site · no trackers · no cookies · no credentials</span>
+      </div>
+    </div>
+  </footer>
+
+  <script src="assets/js/site.js" defer></script>
 </body>
 </html>

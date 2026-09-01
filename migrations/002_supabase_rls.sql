@@ -1,8 +1,12 @@
 -- KLA-Sync Supabase-specific membership and row-level security baseline.
 --
+-- @requires supabase
+--
 -- Apply only after 001_core_schema.sql in a Supabase project, where auth.users
 -- and auth.uid() exist. Server-side workers should use a tightly controlled
--- service-role connection; browser clients must never receive that key.
+-- service-role connection; browser clients must never receive that key. The
+-- migration runner skips this file on plain PostgreSQL; enable it with
+-- `kla-sync migrate --require supabase` when targeting Supabase.
 
 BEGIN;
 

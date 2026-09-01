@@ -22,7 +22,13 @@ class EdgeSpoolTests(unittest.TestCase):
             chunk_file.write_bytes(b"not real wav content for queue test")
             spool = EdgeSpool(root / "spool.sqlite3")
             start = datetime(2026, 9, 1, 10, 0, tzinfo=UTC)
-            queued = spool.enqueue_file("kampala-01", chunk_file, start, start + timedelta(seconds=30))
+            queued = spool.enqueue_file(
+                "kampala-01",
+                chunk_file,
+                start,
+                start + timedelta(seconds=30),
+                now=start,
+            )
             self.assertGreater(spool.queued_bytes(), 0)
 
             claimed = spool.claim_due(now=start + timedelta(seconds=1))

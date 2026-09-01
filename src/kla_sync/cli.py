@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import sys
 from collections.abc import Sequence
 from dataclasses import asdict
 from datetime import UTC, datetime
@@ -107,6 +108,247 @@ def _edge_command(args: argparse.Namespace) -> int:
     return 0
 
 
+def _migrate_command(args: argparse.Namespace) -> int:
+    import os
+
+    from .db.migrations import MigrationError, connect, run_migrations
+
+    dsn = args.database_url or os.environ.get("DATABASE_URL")
+    if not dsn:
+        raise SystemExit("Set DATABASE_URL or pass --database-url")
+    enabled = tuple(name.strip() for name in (args.require or "").split(",") if name.strip())
+    try:
+        connection = connect(dsn)
+        plan = run_migrations(
+            connection,
+            enabled_requirements=enabled,
+            dry_run=args.dry_run,
+        )
+    except MigrationError as error:
+        raise SystemExit(f"migration error: {error}") from error
+
+    for item in plan.skipped:
+        print(f"skip   {item.migration.filename}  ({item.reason})")
+    for item in plan.pending:
+        state = "would apply" if args.dry_run else "applied   "
+        print(f"{state} {item.migration.filename}")
+    for filename in plan.applied:
+        print(f"ok     {filename}")
+    if args.dry_run:
+        print("dry run: no changes made")
+    return 0
+
+
+def _shadow_report_command(args: argparse.Namespace) -> int:
+    import json
+    from pathlib import Path
+
+    from .shadow import (
+        ShadowMonitoringService,
+        load_pilot_sources,
+        render_markdown,
+    )
+
+    def _read_json(path: str | None, default: object) -> object:
+        if not path:
+            return default
+        return json.loads(Path(path).read_text(encoding="utf-8"))
+
+    sources = load_pilot_sources(args.sources)
+    chunks = _read_json(args.chunks, [])
+    station_logs = _read_json(args.station_logs, {})
+    reviews = _read_json(args.reviews, {})
+    catalog = _read_json(args.catalog, {})
+    candidates = _read_json(args.candidates, {})
+
+    service = ShadowMonitoringService(sources)
+    report = service.generate_report(
+        period_start=args.period_start,
+        period_end=args.period_end,
+        chunk_payloads=chunks,  # type: ignore[arg-type]
+        station_logs=station_logs,  # type: ignore[arg-type]
+        review_decisions=reviews,  # type: ignore[arg-type]
+        catalog=catalog,  # type: ignore[arg-type]
+        supplied_candidates=candidates,  # type: ignore[arg-type]
+    )
+
+    Path(args.out_json).write_text(report.to_json() + "\n", encoding="utf-8")
+    if args.out_markdown:
+        Path(args.out_markdown).write_text(render_markdown(report) + "\n", encoding="utf-8")
+
+    print(f"shadow report {report.report_id}: {report.source_count} sources, "
+          f"{len(report.candidates)} candidate observations")
+    for source in report.sources:
+        sc = source.scorecard
+        precision = "n/a" if sc.precision is None else f"{sc.precision:.1%}"
+        print(
+            f"  {source.source_code:22s} chunks={source.chunk_count:<4d} "
+            f"candidates={sc.total_candidates:<3d} reviewed={sc.reviewed:<3d} "
+            f"precision={precision:<6s} log_agreement={sc.log_agreement_rate} "
+            f"false_negatives={sc.possible_false_negatives} local_gaps={sc.local_repertoire_gaps}"
+        )
+    for warning in report.warnings:
+        print(f"  WARNING: {warning}")
+    print(f"  wrote {args.out_json}" + (f" and {args.out_markdown}" if args.out_markdown else ""))
+    return 0
+
+
+def _review_api_command(args: argparse.Namespace) -> int:
+    from wsgiref.simple_server import WSGIRequestHandler, make_server
+
+    from .review.auth import PortalAccount, PortalUserDirectory, issue_portal_token
+    from .review.http import create_review_app
+    from .review.service import ReviewService
+    from .review.store import InMemoryReviewStore
+
+    store = InMemoryReviewStore()
+
+    if args.seed_demo:
+        from datetime import UTC, datetime, timedelta
+
+        now = datetime.now(UTC)
+        # A small, clearly-fictional review queue for demos.
+        candidates = [
+            ("kampala-radio-01", "recording-demo-aaaa", 42, 0.61, 1.0),
+            ("kampala-radio-01", "recording-demo-bbbb", 9, 0.18, 1.025),
+            ("jinja-radio-02", "recording-demo-cccc", 31, 0.47, 0.975),
+        ]
+        for index, (source_code, recording_id, votes, confidence, scale) in enumerate(candidates):
+            started = now - timedelta(hours=index + 1)
+            store.record_candidate(
+                source_id=f"source-{source_code}",
+                source_code=source_code,
+                recording_id=recording_id,
+                capture_chunk_id=f"00000000-0000-4000-8000-{index:012d}",
+                started_at=started,
+                ended_at=started + timedelta(seconds=30),
+                matcher_version="kla-landmark-ratio-v1",
+                fingerprint_schema_id="demo-schema",
+                matched_hash_count=votes,
+                match_confidence=confidence,
+                tempo_scale=scale,
+                offset_seconds=0.0,
+            )
+
+    tokens = {role: issue_portal_token() for role in ("viewer", "reviewer", "finance_reviewer", "catalog_admin")}
+    accounts = [
+        PortalAccount(user_id=f"user-{role}", role=role, token=token, display_name=f"Demo {role}")
+        for role, token in tokens.items()
+    ]
+    directory = PortalUserDirectory(accounts)
+    service = ReviewService(store)
+    app = create_review_app(service, directory)
+
+    class _QuietHandler(WSGIRequestHandler):
+        def log_message(self, fmt: str, *arguments: object) -> None:
+            sys.stderr.write(f"[review-api] {self.address_string()} {fmt % arguments}\n")
+
+    server = make_server(args.host, args.port, app, handler_class=_QuietHandler)
+    print(f"[review-api] listening on http://{args.host}:{args.port} (in-memory demo)")
+    print("[review-api] demo portal tokens (use as 'Authorization: Bearer <token>'):")
+    for role, token in tokens.items():
+        print(f"  {role:18s} {token}")
+    try:
+        server.serve_forever()
+    except KeyboardInterrupt:
+        print("\n[review-api] shutting down")
+    return 0
+
+
+def _ingest_api_command(args: argparse.Namespace) -> int:
+    import os
+    from wsgiref.simple_server import WSGIRequestHandler, make_server
+
+    from .audio.fingerprint import FingerprintConfig
+    from .ingestion_api.device_auth import (
+        DeviceIdentity,
+        InMemoryDeviceRegistry,
+        generate_device_secret,
+    )
+    from .ingestion_api.http import create_ingestion_app
+    from .ingestion_api.service import IngestionService
+    from .ingestion_api.stores import InMemoryIngestionStore
+    from .matching.service import LandmarkIndexService
+    from .matching.store import InMemoryLandmarkStore
+
+    catalog_token = os.environ.get("KLA_SYNC_CATALOG_API_TOKEN")
+    if not args.memory and os.environ.get("DATABASE_URL"):
+        raise SystemExit(
+            "The reference ingestion server is in-memory only; "
+            "run with --memory for the demo, or deploy the Postgres/Redis adapters"
+        )
+
+    config = FingerprintConfig()
+    store = InMemoryLandmarkStore(config)
+    index = LandmarkIndexService(store, config)
+    registry = InMemoryDeviceRegistry()
+    ingestion_store = InMemoryIngestionStore()
+
+    # Provision/demo: seed one device and one source so a reference worker can
+    # immediately send a signed chunk. Production provisions via secret manager.
+    source_id = ingestion_store.register_source(args.source_code)
+    device_secret = args.device_secret or generate_device_secret()
+    registry.register(
+        DeviceIdentity(device_id=args.device_id, source_id=args.source_code, secret=device_secret)
+    )
+
+    ingestion = IngestionService(ingestion_store, index)
+    app = create_ingestion_app(
+        ingestion,
+        index,
+        device_registry=registry,
+        catalog_token=catalog_token,
+    )
+
+    class _QuietHandler(WSGIRequestHandler):
+        def log_message(self, fmt: str, *arguments: object) -> None:
+            sys.stderr.write(f"[ingest-api] {self.address_string()} {fmt % arguments}\n")
+
+    server = make_server(args.host, args.port, app, handler_class=_QuietHandler)
+    print(f"[ingest-api] listening on http://{args.host}:{args.port}")
+    print(f"[ingest-api] schema_id={config.schema_id}")
+    print(f"[ingest-api] demo device {args.device_id} for source {args.source_code} (source_id={source_id})")
+    print(f"[ingest-api] demo device secret (set KLA_SYNC_DEVICE_SECRET in production): {device_secret}")
+    try:
+        server.serve_forever()
+    except KeyboardInterrupt:
+        print("\n[ingest-api] shutting down")
+    return 0
+
+
+def _catalog_api_command(args: argparse.Namespace) -> int:
+    import os
+    from wsgiref.simple_server import WSGIRequestHandler, make_server
+
+    from .http_api.wsgi import build_default_app
+
+    if args.print_dev_token:
+        from .http_api.auth import generate_token
+
+        print(generate_token())
+        return 0
+
+    if args.memory and not os.environ.get("KLA_SYNC_CATALOG_API_TOKEN"):
+        os.environ["KLA_SYNC_CATALOG_API_TOKEN"] = args.dev_token or ""
+    if args.dev_token:
+        os.environ["KLA_SYNC_CATALOG_API_TOKEN"] = args.dev_token
+
+    app, _token = build_default_app(require_token=not args.memory)
+
+    class _QuietHandler(WSGIRequestHandler):
+        def log_message(self, fmt: str, *arguments: object) -> None:
+            sys.stderr.write(f"[catalog-api] {self.address_string()} {fmt % arguments}\n")
+
+    host, port = args.host, args.port
+    server = make_server(host, port, app, handler_class=_QuietHandler)
+    print(f"[catalog-api] listening on http://{host}:{port} (memory={args.memory})")
+    try:
+        server.serve_forever()
+    except KeyboardInterrupt:
+        print("\n[catalog-api] shutting down")
+    return 0
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="KLA-Sync reference worker diagnostics")
     subparsers = parser.add_subparsers(dest="command", required=True)
@@ -143,6 +385,72 @@ def build_parser() -> argparse.ArgumentParser:
     edge.add_argument("--output-directory", default="captures")
     edge.add_argument("--segment-seconds", default=30, type=int)
     edge.set_defaults(handler=_edge_command)
+
+    migrate = subparsers.add_parser("migrate", help="apply PostgreSQL migrations with checksum ledger")
+    migrate.add_argument("--database-url", help="PostgreSQL DSN (defaults to $DATABASE_URL)")
+    migrate.add_argument(
+        "--require",
+        default="",
+        help="comma-separated environment requirements to enable (e.g. 'supabase')",
+    )
+    migrate.add_argument("--dry-run", action="store_true", help="plan only; do not apply")
+    migrate.set_defaults(handler=_migrate_command)
+
+    catalog_api = subparsers.add_parser("catalog-api", help="run the catalog onboarding HTTP API")
+    catalog_api.add_argument("--host", default="0.0.0.0")
+    catalog_api.add_argument("--port", type=int, default=8080)
+    catalog_api.add_argument(
+        "--memory",
+        action="store_true",
+        help="use the in-memory store (local demo; data is not persisted)",
+    )
+    catalog_api.add_argument(
+        "--dev-token",
+        help="bearer token for local use (or set KLA_SYNC_CATALOG_API_TOKEN)",
+    )
+    catalog_api.add_argument(
+        "--print-dev-token",
+        action="store_true",
+        help="print a strong generated bearer token and exit",
+    )
+    catalog_api.set_defaults(handler=_catalog_api_command)
+
+    ingest_api = subparsers.add_parser("ingest-api", help="run the authenticated edge ingestion API")
+    ingest_api.add_argument("--host", default="0.0.0.0")
+    ingest_api.add_argument("--port", type=int, default=8081)
+    ingest_api.add_argument("--memory", action="store_true", help="reference in-memory server (demo)")
+    ingest_api.add_argument("--source-code", default="kampala-radio-01")
+    ingest_api.add_argument("--device-id", default="edge-demo-01")
+    ingest_api.add_argument(
+        "--device-secret",
+        help="demo device HMAC secret (otherwise a random one is printed at startup)",
+    )
+    ingest_api.set_defaults(handler=_ingest_api_command)
+
+    review_api = subparsers.add_parser("review-api", help="run the reviewer/dispute dashboard backend")
+    review_api.add_argument("--host", default="0.0.0.0")
+    review_api.add_argument("--port", type=int, default=8082)
+    review_api.add_argument("--seed-demo", action="store_true", help="seed a fictional review queue")
+    review_api.set_defaults(handler=_review_api_command)
+
+    shadow = subparsers.add_parser(
+        "shadow-report",
+        help="generate the non-financial weekly radio shadow-monitoring report",
+    )
+    shadow.add_argument("--period-start", required=True, help="ISO-8601 start of the report week")
+    shadow.add_argument("--period-end", required=True, help="ISO-8601 end of the report week")
+    shadow.add_argument("--sources", help="JSON list of agreed pilot sources (default: template)")
+    shadow.add_argument("--chunks", help="JSON list of ingested chunk manifests")
+    shadow.add_argument("--station-logs", help="JSON map source_code -> playlist log entries")
+    shadow.add_argument("--reviews", help="JSON map edge_chunk_id -> verified|rejected|candidate")
+    shadow.add_argument("--catalog", help="JSON map recording_id -> title/artist/isrc metadata")
+    shadow.add_argument(
+        "--candidates",
+        help="JSON map edge_chunk_id -> matcher candidates (offline replay when no live matcher)",
+    )
+    shadow.add_argument("--out-json", default="shadow-report.json")
+    shadow.add_argument("--out-markdown", default="shadow-report.md")
+    shadow.set_defaults(handler=_shadow_report_command)
     return parser
 
 

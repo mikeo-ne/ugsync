@@ -455,6 +455,21 @@ class InMemoryFingerprintIndex:
 
         return len(self._track_hashes.get(track_id, ()))
 
+    def occurrences_for(self, key: tuple[int, int]) -> tuple[FingerprintOccurrence, ...]:
+        """Public read access to one inverted-index bucket (index adapters)."""
+
+        return tuple(self._inverted.get(key, ()))
+
+    def track_hash_count(self, track_id: str) -> int:
+        """Number of registered hashes for one track (0 if unknown)."""
+
+        return len(self._track_hashes.get(track_id, ()))
+
+    def track_ids(self) -> frozenset[str]:
+        """All currently indexed track ids."""
+
+        return frozenset(self._track_hashes)
+
     def _require_compatible(self, fingerprint: Fingerprint) -> None:
         if fingerprint.schema_id != self.schema_id:
             raise ValueError(

@@ -1,0 +1,56 @@
+# Continuous integration for the KLA-Sync reference codebase.
+#
+# Runs lint, dependency-free unit tests, and PostgreSQL migration parsing on
+# every push and pull request. The static site deploys separately via
+# static.yml; the onboarding API is a server-side service, not part of the
+# public GitHub Pages site.
+name: CI
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: "ci-${{ github.ref }}"
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: Lint, unit tests, migration validation
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install dev dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e '.[dev]'
+
+      - name: Ruff lint
+        run: ruff check src tests scripts
+
+      - name: Unit tests
+        run: python -m unittest discover -s tests -v
+
+      - name: Validate migrations parse as PostgreSQL
+        run: python scripts/validate_migrations.py
+
+      - name: CLI smoke (help + token generation)
+        run: |
+          kla-sync --help > /dev/null
+          kla-sync catalog-api --print-dev-token | grep -E '^[A-Za-z0-9_-]{20,}$'
+          kla-sync migrate --help > /dev/null
+          kla-sync ingest-api --help > /dev/null
+          kla-sync review-api --help > /dev/null
+          kla-sync shadow-report --help > /dev/null

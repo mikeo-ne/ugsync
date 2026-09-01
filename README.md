@@ -16,6 +16,8 @@ Airtel integration is already approved or live.
 | Area | Deliverable |
 | --- | --- |
 | Robust fingerprinting | Pure-Python FFT fallback plus optional NumPy acceleration; relative log-frequency landmark hashes; ±10% timing-scale candidate search and offset voting |
+| Fingerprint index service | Store-backed matcher (`InMemoryLandmarkStore` for pilots, Redis hot-shard adapter for production) with schema-id isolation and the same tempo-aware voting as the reference index |
+| Authenticated ingestion API | Edge devices authenticate per request with HMAC signatures; chunk manifests are verified, receipted idempotently, matched to candidate detections, and audited |
 | DJ-mix segmentation | Acoustic novelty features plus repeated match-window fusion; preserves beat-match/crossfade overlap instead of inventing hard cuts |
 | Offline edge ingestion | Shell-safe FFmpeg command builder and SQLite-backed capture outbox with hash, retry, and acknowledgement handling |
 | Rights and finance | PostgreSQL/Supabase schema for ISRC/ISWC, recordings, works, contributors, versioned 10,000-bp splits, detections, rates, allocations, payment accounts, payouts, and audit events |
@@ -36,6 +38,8 @@ src/kla_sync/
   catalog/        Validated onboarding documents, stores, and service
   db/             PostgreSQL migration runner with checksum ledger
   http_api/       Authenticated catalog onboarding WSGI API
+  matching/       Fingerprint index service + in-memory/Redis stores
+  ingestion_api/  Device HMAC auth, chunk manifests, ingestion WSGI API
   cli.py          Diagnostic + operations CLI
 migrations/
   001_core_schema.sql       Portable PostgreSQL core model
@@ -222,6 +226,7 @@ restricted server-side role.
 - [Technical architecture and data flows](docs/architecture.md)
 - [Catalog, split-sheet, and payout database model](docs/database-model.md)
 - [Catalog onboarding API and migration runner](docs/catalog-onboarding-api.md)
+- [Fingerprint index service and authenticated ingestion API](docs/ingestion-and-fingerprint-index.md)
 - [Autonomous microservice system prompts](docs/autonomous-service-prompts.md)
 - [Uganda go-to-market and URSB/CMO partnership concept](docs/uganda-go-to-market-and-partnership.md)
 

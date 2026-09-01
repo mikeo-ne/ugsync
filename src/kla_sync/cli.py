@@ -139,6 +139,67 @@ def _migrate_command(args: argparse.Namespace) -> int:
     return 0
 
 
+def _ingest_api_command(args: argparse.Namespace) -> int:
+    import os
+    from wsgiref.simple_server import WSGIRequestHandler, make_server
+
+    from .audio.fingerprint import FingerprintConfig
+    from .ingestion_api.device_auth import (
+        DeviceIdentity,
+        InMemoryDeviceRegistry,
+        generate_device_secret,
+    )
+    from .ingestion_api.http import create_ingestion_app
+    from .ingestion_api.service import IngestionService
+    from .ingestion_api.stores import InMemoryIngestionStore
+    from .matching.service import LandmarkIndexService
+    from .matching.store import InMemoryLandmarkStore
+
+    catalog_token = os.environ.get("KLA_SYNC_CATALOG_API_TOKEN")
+    if not args.memory and os.environ.get("DATABASE_URL"):
+        raise SystemExit(
+            "The reference ingestion server is in-memory only; "
+            "run with --memory for the demo, or deploy the Postgres/Redis adapters"
+        )
+
+    config = FingerprintConfig()
+    store = InMemoryLandmarkStore(config)
+    index = LandmarkIndexService(store, config)
+    registry = InMemoryDeviceRegistry()
+    ingestion_store = InMemoryIngestionStore()
+
+    # Provision/demo: seed one device and one source so a reference worker can
+    # immediately send a signed chunk. Production provisions via secret manager.
+    source_id = ingestion_store.register_source(args.source_code)
+    device_secret = args.device_secret or generate_device_secret()
+    registry.register(
+        DeviceIdentity(device_id=args.device_id, source_id=args.source_code, secret=device_secret)
+    )
+
+    ingestion = IngestionService(ingestion_store, index)
+    app = create_ingestion_app(
+        ingestion,
+        index,
+        device_registry=registry,
+        catalog_token=catalog_token,
+    )
+
+    class _QuietHandler(WSGIRequestHandler):
+        def log_message(self, fmt: str, *arguments: object) -> None:
+            sys.stderr.write(f"[ingest-api] {self.address_string()} {fmt % arguments}\n")
+
+    server = make_server(args.host, args.port, app, handler_class=_QuietHandler)
+    print(f"[ingest-api] listening on http://{args.host}:{args.port}")
+    print(f"[ingest-api] schema_id={config.schema_id}")
+    print(f"[ingest-api] demo device {args.device_id} for source {args.source_code} (source_id={source_id})")
+    print(f"[ingest-api] demo device secret (set KLA_SYNC_DEVICE_SECRET in production): {device_secret}")
+    try:
+        server.serve_forever()
+    except KeyboardInterrupt:
+        print("\n[ingest-api] shutting down")
+    return 0
+
+
 def _catalog_api_command(args: argparse.Namespace) -> int:
     import os
     from wsgiref.simple_server import WSGIRequestHandler, make_server
@@ -237,6 +298,18 @@ def build_parser() -> argparse.ArgumentParser:
         help="print a strong generated bearer token and exit",
     )
     catalog_api.set_defaults(handler=_catalog_api_command)
+
+    ingest_api = subparsers.add_parser("ingest-api", help="run the authenticated edge ingestion API")
+    ingest_api.add_argument("--host", default="0.0.0.0")
+    ingest_api.add_argument("--port", type=int, default=8081)
+    ingest_api.add_argument("--memory", action="store_true", help="reference in-memory server (demo)")
+    ingest_api.add_argument("--source-code", default="kampala-radio-01")
+    ingest_api.add_argument("--device-id", default="edge-demo-01")
+    ingest_api.add_argument(
+        "--device-secret",
+        help="demo device HMAC secret (otherwise a random one is printed at startup)",
+    )
+    ingest_api.set_defaults(handler=_ingest_api_command)
     return parser
 
 

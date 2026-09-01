@@ -41,6 +41,7 @@ src/kla_sync/
   matching/       Fingerprint index service + in-memory/Redis stores
   ingestion_api/  Device HMAC auth, chunk manifests, ingestion WSGI API
   review/         Reviewer/dispute portal: roles, decisions, disputes
+  shadow/         Radio shadow-monitoring pilot: weekly non-financial reconciliation
   cli.py          Diagnostic + operations CLI
 migrations/
   001_core_schema.sql       Portable PostgreSQL core model
@@ -230,6 +231,7 @@ restricted server-side role.
 - [Catalog onboarding API and migration runner](docs/catalog-onboarding-api.md)
 - [Fingerprint index service and authenticated ingestion API](docs/ingestion-and-fingerprint-index.md)
 - [Reviewer/dispute dashboard backend](docs/reviewer-dispute-dashboard.md)
+- [Radio shadow-monitoring pilot](docs/shadow-monitoring-pilot.md)
 - [Autonomous microservice system prompts](docs/autonomous-service-prompts.md)
 - [Uganda go-to-market and URSB/CMO partnership concept](docs/uganda-go-to-market-and-partnership.md)
 
@@ -240,10 +242,14 @@ restricted server-side role.
    using the `LandmarkHash` contract.
 3. Add a review portal with Supabase Auth, role separation, evidence playback
    controls, and dispute workflow.
-4. Complete CMO/registry data-sharing agreements and telecom sandbox
+4. ~~Run shadow reports, publish source-specific accuracy metrics~~ — delivered
+   as the [shadow-monitoring pilot](docs/shadow-monitoring-pilot.md): weekly
+   non-financial per-source scorecards, station-log reconciliation, and local
+   repertoire outreach lists.
+5. Complete CMO/registry data-sharing agreements and telecom sandbox
    certification before enabling production synchronization or payouts.
-5. Run shadow reports, publish source-specific accuracy metrics, then conduct a
-   dry-run settlement before any live money movement.
+6. Conduct a dry-run settlement only after explicit partner approval; no live
+   money movement before then.
 
 ## Test status
 

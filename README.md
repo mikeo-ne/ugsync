@@ -21,6 +21,8 @@ Airtel integration is already approved or live.
 | Rights and finance | PostgreSQL/Supabase schema for ISRC/ISWC, recordings, works, contributors, versioned 10,000-bp splits, detections, rates, allocations, payment accounts, payouts, and audit events |
 | Royalty engine | Deterministic `Decimal` formula and largest-remainder whole-UGX rounding that preserves totals |
 | Integration safety | Explicit URSB/registry and mobile-money adapter contracts; no guessed live API endpoints or stored raw wallet numbers |
+| Catalog onboarding API | Authenticated server-side WSGI API for validated catalog/split onboarding; one transaction per batch, idempotency keys, audit events, and draft split activation |
+| PostgreSQL migration runner | Ordered SQL migrations with an applied-migrations ledger, SHA-256 checksum-drift detection, and environment-gated Supabase files |
 | Architecture & business | Mermaid diagrams, data-flow design, bounded autonomous-worker prompts, and Uganda pilot/partnership concept paper |
 
 ## Repository layout
@@ -31,11 +33,15 @@ src/kla_sync/
   ingestion/      Offline edge capture and SQLite spool
   royalties/      Split validation and royalty calculation
   integrations/   Safe registry and wallet-provider contracts
-  cli.py          Diagnostic CLI
+  catalog/        Validated onboarding documents, stores, and service
+  db/             PostgreSQL migration runner with checksum ledger
+  http_api/       Authenticated catalog onboarding WSGI API
+  cli.py          Diagnostic + operations CLI
 migrations/
   001_core_schema.sql       Portable PostgreSQL core model
-  002_supabase_rls.sql      Supabase Auth/RLS baseline
+  002_supabase_rls.sql      Supabase Auth/RLS baseline (requires --require supabase)
   003_integrity_guards.sql  Cross-table financial and evidence checks
+  004_onboarding_api.sql    Onboarding idempotency ledger
  docs/
   architecture.md
   autonomous-service-prompts.md
@@ -147,12 +153,48 @@ through a supervised process manager (for example, `systemd`); do not use
 Review migrations with your DBA/security lead before applying them. The core
 migration uses PostgreSQL extensions `pgcrypto`, `citext`, and `btree_gist`.
 
+Apply them with the built-in migration runner, which records each applied file
+and its SHA-256 checksum in a `kla_schema_migrations` ledger, detects drift, and
+gates the Supabase-specific RLS file:
+
+```bash
+# Plan only:
+kla-sync migrate --dry-run
+# Apply to $DATABASE_URL:
+kla-sync migrate
+# In a Supabase project (enables migration 002):
+kla-sync migrate --require supabase
+```
+
+The runner wraps each migration in a transaction with its ledger row, so a
+failed migration rolls back cleanly and stays re-runnable. Direct `psql -f`
+application still works if you prefer to manage the ledger manually.
+
 ```bash
 psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f migrations/001_core_schema.sql
 psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f migrations/003_integrity_guards.sql
 # Only in a Supabase project after the core migration and auth bootstrap:
 psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f migrations/002_supabase_rls.sql
 ```
+
+## Catalog onboarding API
+
+A server-side, bearer-token authenticated API enrolls catalog metadata and draft
+split sheets in one transaction, with idempotency keys and audit events. It is
+not part of the public website and carries no payment data.
+
+```bash
+# Generate a service token and run locally against PostgreSQL:
+export KLA_SYNC_CATALOG_API_TOKEN="$(kla-sync catalog-api --print-dev-token)"
+kla-sync migrate
+kla-sync catalog-api --port 8080        # serves via the stdlib WSGI server
+
+# Zero-dependency in-memory demo (not persisted):
+kla-sync catalog-api --memory --dev-token dev-token
+```
+
+See [`docs/catalog-onboarding-api.md`](docs/catalog-onboarding-api.md) for the
+endpoint contract, validation rules, and example payload.
 
 `002_supabase_rls.sql` intentionally fails closed for browser access to raw
 captures, detections, party PII, payment accounts, and payouts. Expose only
@@ -179,6 +221,7 @@ restricted server-side role.
 
 - [Technical architecture and data flows](docs/architecture.md)
 - [Catalog, split-sheet, and payout database model](docs/database-model.md)
+- [Catalog onboarding API and migration runner](docs/catalog-onboarding-api.md)
 - [Autonomous microservice system prompts](docs/autonomous-service-prompts.md)
 - [Uganda go-to-market and URSB/CMO partnership concept](docs/uganda-go-to-market-and-partnership.md)
 

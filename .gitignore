@@ -1,0 +1,35 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+.pytest_cache/
+.ruff_cache/
+.venv/
+venv/
+
+# Local configuration and secrets
+.env
+.env.*
+!.env.example
+secrets/
+*.pem
+*.key
+
+# Audio capture spools and generated data
+spool/
+captures/
+*.wav
+*.flac
+*.mp3
+*.aac
+*.opus
+fingerprints/
+
+# Databases and editor files
+*.sqlite3
+*.db
+.DS_Store
+.idea/
+.vscode/

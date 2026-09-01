@@ -139,6 +139,68 @@ def _migrate_command(args: argparse.Namespace) -> int:
     return 0
 
 
+def _review_api_command(args: argparse.Namespace) -> int:
+    from wsgiref.simple_server import WSGIRequestHandler, make_server
+
+    from .review.auth import PortalAccount, PortalUserDirectory, issue_portal_token
+    from .review.http import create_review_app
+    from .review.service import ReviewService
+    from .review.store import InMemoryReviewStore
+
+    store = InMemoryReviewStore()
+
+    if args.seed_demo:
+        from datetime import UTC, datetime, timedelta
+
+        now = datetime.now(UTC)
+        # A small, clearly-fictional review queue for demos.
+        candidates = [
+            ("kampala-radio-01", "recording-demo-aaaa", 42, 0.61, 1.0),
+            ("kampala-radio-01", "recording-demo-bbbb", 9, 0.18, 1.025),
+            ("jinja-radio-02", "recording-demo-cccc", 31, 0.47, 0.975),
+        ]
+        for index, (source_code, recording_id, votes, confidence, scale) in enumerate(candidates):
+            started = now - timedelta(hours=index + 1)
+            store.record_candidate(
+                source_id=f"source-{source_code}",
+                source_code=source_code,
+                recording_id=recording_id,
+                capture_chunk_id=f"00000000-0000-4000-8000-{index:012d}",
+                started_at=started,
+                ended_at=started + timedelta(seconds=30),
+                matcher_version="kla-landmark-ratio-v1",
+                fingerprint_schema_id="demo-schema",
+                matched_hash_count=votes,
+                match_confidence=confidence,
+                tempo_scale=scale,
+                offset_seconds=0.0,
+            )
+
+    tokens = {role: issue_portal_token() for role in ("viewer", "reviewer", "finance_reviewer", "catalog_admin")}
+    accounts = [
+        PortalAccount(user_id=f"user-{role}", role=role, token=token, display_name=f"Demo {role}")
+        for role, token in tokens.items()
+    ]
+    directory = PortalUserDirectory(accounts)
+    service = ReviewService(store)
+    app = create_review_app(service, directory)
+
+    class _QuietHandler(WSGIRequestHandler):
+        def log_message(self, fmt: str, *arguments: object) -> None:
+            sys.stderr.write(f"[review-api] {self.address_string()} {fmt % arguments}\n")
+
+    server = make_server(args.host, args.port, app, handler_class=_QuietHandler)
+    print(f"[review-api] listening on http://{args.host}:{args.port} (in-memory demo)")
+    print("[review-api] demo portal tokens (use as 'Authorization: Bearer <token>'):")
+    for role, token in tokens.items():
+        print(f"  {role:18s} {token}")
+    try:
+        server.serve_forever()
+    except KeyboardInterrupt:
+        print("\n[review-api] shutting down")
+    return 0
+
+
 def _ingest_api_command(args: argparse.Namespace) -> int:
     import os
     from wsgiref.simple_server import WSGIRequestHandler, make_server
@@ -310,6 +372,12 @@ def build_parser() -> argparse.ArgumentParser:
         help="demo device HMAC secret (otherwise a random one is printed at startup)",
     )
     ingest_api.set_defaults(handler=_ingest_api_command)
+
+    review_api = subparsers.add_parser("review-api", help="run the reviewer/dispute dashboard backend")
+    review_api.add_argument("--host", default="0.0.0.0")
+    review_api.add_argument("--port", type=int, default=8082)
+    review_api.add_argument("--seed-demo", action="store_true", help="seed a fictional review queue")
+    review_api.set_defaults(handler=_review_api_command)
     return parser
 
 

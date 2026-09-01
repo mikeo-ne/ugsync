@@ -40,12 +40,14 @@ src/kla_sync/
   http_api/       Authenticated catalog onboarding WSGI API
   matching/       Fingerprint index service + in-memory/Redis stores
   ingestion_api/  Device HMAC auth, chunk manifests, ingestion WSGI API
+  review/         Reviewer/dispute portal: roles, decisions, disputes
   cli.py          Diagnostic + operations CLI
 migrations/
   001_core_schema.sql       Portable PostgreSQL core model
   002_supabase_rls.sql      Supabase Auth/RLS baseline (requires --require supabase)
   003_integrity_guards.sql  Cross-table financial and evidence checks
   004_onboarding_api.sql    Onboarding idempotency ledger
+  005_detection_disputes.sql Reviewer disputes + reviewer role
  docs/
   architecture.md
   autonomous-service-prompts.md
@@ -227,6 +229,7 @@ restricted server-side role.
 - [Catalog, split-sheet, and payout database model](docs/database-model.md)
 - [Catalog onboarding API and migration runner](docs/catalog-onboarding-api.md)
 - [Fingerprint index service and authenticated ingestion API](docs/ingestion-and-fingerprint-index.md)
+- [Reviewer/dispute dashboard backend](docs/reviewer-dispute-dashboard.md)
 - [Autonomous microservice system prompts](docs/autonomous-service-prompts.md)
 - [Uganda go-to-market and URSB/CMO partnership concept](docs/uganda-go-to-market-and-partnership.md)
 

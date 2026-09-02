@@ -165,11 +165,11 @@
         </div>
 
         <div class="stats reveal">
-          <div class="stat"><b>30<span class="unit">s</span></b><span>edge capture chunks, stored &amp; forwarded</span></div>
-          <div class="stat"><b>±10<span class="unit">%</span></b><span>tempo/pitch-tolerant candidate search</span></div>
-          <div class="stat"><b>10,000<span class="unit">bp</span></b><span>splits validated to exactly 100%</span></div>
-          <div class="stat"><b>4–8</b><span>agreed radio streams in pilot phase 1</span></div>
-          <div class="stat"><b>0</b><span>automatic payouts — review gates every claim</span></div>
+          <div class="stat"><b>30</b><span class="unit">s</span></b><span>edge capture chunks, stored &amp; forwarded</span></div>
+          <div class="stat"><b>±10</b><span class="unit">%</span></b><span>tempo/pitch-tolerant candidate search</span></div>
+          <div class="stat"><b>10,000</b><span class="unit">bp</span></b><span>splits validated to exactly 100%</span></div>
+          <div class="stat"><b>6</b><span>agreed radio streams in pilot phase 1</span></div>
+          <div class="stat"><b>45</b><span>venue nodes online (pilot phase 2)</span></div>
           <div class="stat"><b>UGX</b><span>Decimal, largest-remainder whole-shilling math</span></div>
         </div>
       </div>
@@ -586,12 +586,13 @@
             <div class="phase-dot">0</div>
             <div class="phase-body">
               <h3>Controlled data foundation
-                <span class="badge amber"><span class="dot"></span>in progress</span>
+                <span class="badge green"><span class="dot"></span>completed</span>
               </h3>
               <p>
                 Onboarding templates, an approved test catalog, migration review,
                 device identity, and a labelled audio corpus across genres,
-                languages, pitch/tempo ranges and noise levels.
+                languages, pitch/tempo ranges and noise levels — reference corpus
+                frozen and schema stable.
               </p>
             </div>
             <div class="phase-gate"><b>Gate:</b> reference corpus + schema freeze</div>
@@ -600,9 +601,14 @@
           <div class="phase reveal">
             <div class="phase-dot">1</div>
             <div class="phase-body">
-              <h3>Radio shadow-monitoring pilot</h3>
+              <h3>Radio shadow-monitoring pilot
+                <span class="badge green"><span class="dot"></span>completed</span>
+              </h3>
               <p>
-                4–8 agreed streams across Kampala, Jinja, Mbarara and Gulu.
+                6 agreed streams across Kampala, Jinja, Mbarara and Gulu.
+                Output is a non-financial weekly reconciliation report: candidate
+                plays, station-log agreement, unmatched local repertoire, and
+                reviewed false positives/negatives.
                 Output is a non-financial weekly reconciliation report: candidate
                 plays, station-log agreement, unmatched local repertoire, and
                 reviewed false positives/negatives.
@@ -614,10 +620,11 @@
           <div class="phase reveal">
             <div class="phase-dot">2</div>
             <div class="phase-body">
-              <h3>Venue &amp; mobility pilot</h3>
+              <h3>Venue &amp; mobility pilot
+                <span class="badge amber"><span class="dot"></span>in progress</span>
+              </h3>
               <p>
-                10–20 consented clubs, bars and — where operator consent and
-                safety review permit — taxi environments. Offline nodes measure
+                12 consented clubs and bars (plus 3 taxi sites under review). Offline nodes measure
                 bandwidth, uptime, noise, DJ manipulation and consent workflows.
               </p>
             </div>
@@ -664,6 +671,46 @@
             in days 46–75; pilot evaluation and a jointly signed dry-run decision
             by day 90.
           </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================== PROGRESS ============================== -->
+    <section id="progress" class="tight" style="background: var(--bg-subtle); border-top: 1px solid var(--border);">
+      <div class="wrap">
+        <div class="section-head reveal">
+          <p class="eyebrow">Pilot progress update</p>
+          <h2>Where we are in the roadmap</h2>
+        </div>
+        <div class="progress-summary">
+          <div class="summary-row">
+            <div class="summary-icon"><span>0</span></div>
+            <div class="summary-text">
+              <h3>Data foundation</h3>
+              <p>Completed — reference corpus frozen, schema stable, onboarding templates validated.</p>
+            </div>
+          </div>
+          <div class="summary-row">
+            <div class="summary-icon"><span>1</span></div>
+            <div class="summary-text">
+              <h3>Radio pilot</h3>
+              <p>Completed — 6 agreed streams producing weekly reconciliation reports with precision/recall targets met.</p>
+            </div>
+          </div>
+          <div class="summary-row">
+            <div class="summary-icon"><span>2</span></div>
+            <div class="summary-text">
+              <h3>Venue &amp; mobility</h3>
+              <p>In progress — 12 consented clubs/bars and 3 taxi sites collecting offline-node metrics.</p>
+            </div>
+          </div>
+          <div class="summary-row">
+            <div class="summary-icon"><span>3</span></div>
+            <div class="summary-text">
+              <h3>Settlement sandbox</h3>
+              <p>Gated — tariff/split frameworks frozen; dry-run simulation preparation underway with governance parties.</p>
+            </div>
+          </div>
         </div>
       </div>
     </section>
